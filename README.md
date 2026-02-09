@@ -44,6 +44,12 @@
 
 ```bash
 curl -fsLS https://raw.githubusercontent.com/XWIlluDelu/zsh-config/main/bootstrap.sh | bash
+
+> 说明：脚本默认执行后自删除。如需保留，请用：
+> 
+> `BOOTSTRAP_SELF_DELETE=0 bash -s`（例如：
+> `curl -fsLS https://raw.githubusercontent.com/XWIlluDelu/zsh-config/main/bootstrap.sh | BOOTSTRAP_SELF_DELETE=0 bash`）
+
 ```
 
 脚本会自动完成：

@@ -92,3 +92,14 @@ echo ""
 echo -e "${GREEN}======== Deploy complete! ========${NC}"
 echo "  Run zsh or re-login to start."
 echo "  Proxy: proxy_on / proxy_off (default ON @ 127.0.0.1:7890)"
+
+# ---------------------------------------------------------------------------
+#  Self-destruct (可关闭：BOOTSTRAP_SELF_DELETE=0)
+# ---------------------------------------------------------------------------
+if [[ "${BOOTSTRAP_SELF_DELETE:-1}" = "1" ]]; then
+    script_path="${BASH_SOURCE[0]:-$0}"
+    if [[ -f "$script_path" ]]; then
+        rm -f -- "$script_path" || true
+    fi
+fi
+
