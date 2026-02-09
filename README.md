@@ -38,65 +38,50 @@
 
 ## 新机器部署
 
-### 前置条件
+### 真·一键部署
 
-- Linux（Ubuntu/Debian 为主）
-- zsh 已安装（`sudo apt install zsh && chsh -s $(which zsh)`）
-- git 已安装
-- 能联网（下载工具和插件）
-
-### 一键部署
+只需 git 和 curl（脚本会自动安装 zsh 及所有依赖工具）：
 
 ```bash
-# 1. 安装 chezmoi 并拉取配置（一条命令搞定）
+curl -fsLS https://raw.githubusercontent.com/XWIlluDelu/zsh-config/main/bootstrap.sh | bash
+```
+
+脚本会自动完成：
+1. 检查并安装 zsh（如缺失，通过 apt/dnf/pacman）
+2. 安装 chezmoi → 拉取本仓库 → 部署配置文件
+3. 安装 Starship prompt
+4. 安装 fzf（模糊搜索）
+5. 安装 trash-cli（安全删除）
+6. 切换默认 shell 为 zsh
+7. 预下载 zinit 插件
+
+完成后运行 `zsh` 或重新登录即可。
+
+### 手动分步部署
+
+如果不想用一键脚本，也可以手动操作：
+
+```bash
+# 1. 安装 chezmoi 并拉取配置
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:XWIlluDelu/zsh-config.git
-```
 
-这条命令会自动：
-1. 下载安装 chezmoi 到 `~/.local/bin/`
-2. Clone 本仓库到 `~/.local/share/chezmoi/`
-3. 将配置文件部署到 `~/.zshrc`、`~/.config/starship.toml`、`~/.gitconfig`
+# 2. 安装 Starship
+curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin
 
-### 安装依赖工具
+# 3. 安装 fzf
+sudo apt install fzf  # 或从 GitHub 下载二进制
 
-chezmoi 只管配置文件本身，以下工具需要手动安装：
+# 4. 安装 trash-cli
+pip install trash-cli  # 或 sudo apt install trash-cli
 
-```bash
-# Starship prompt
-curl -sS https://starship.rs/install.sh | sh
-
-# fzf（模糊搜索，fzf-tab 需要）
-# 方式一：从 GitHub 下载二进制
-FZF_VERSION=$(curl -s https://api.github.com/repos/junegunn/fzf/releases/latest | grep tag_name | cut -d '"' -f 4)
-curl -Lo /tmp/fzf.tar.gz "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION#v}-linux_amd64.tar.gz"
-tar xzf /tmp/fzf.tar.gz -C ~/.local/bin/ fzf
-
-# 方式二：包管理器
-# sudo apt install fzf
-
-# trash-cli（安全删除，配合 rm alias）
-pip install trash-cli
-# 或 sudo apt install trash-cli
-```
-
-### 创建 chezmoi 配置（修复 umask 问题）
-
-如果系统 umask 是 `002`（常见于多用户服务器），需要手动创建：
-
-```bash
+# 5. 修复 umask（多用户服务器 umask=002 时需要）
 mkdir -p ~/.config/chezmoi
-cat > ~/.config/chezmoi/chezmoi.toml << 'EOF'
-umask = 0o022
-EOF
-```
+echo 'umask = 0o022' > ~/.config/chezmoi/chezmoi.toml
+chezmoi apply
 
-### 首次打开 zsh
-
-```bash
+# 6. 打开 zsh（首次会下载插件，约 30 秒）
 zsh
 ```
-
-首次启动时 **zinit 会自动下载所有插件**（需要联网），大约 30 秒。之后启动时间约 **~100ms**。
 
 ## 日常使用
 
