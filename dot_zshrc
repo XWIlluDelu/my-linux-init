@@ -1,0 +1,169 @@
+# =============================================================================
+#  Zsh Configuration — wangzixiong
+#  Managed by chezmoi · https://chezmoi.io
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+#  PATH
+# ---------------------------------------------------------------------------
+typeset -U path  # deduplicate
+path=(
+    "$HOME/.local/bin"
+    "$HOME/.fzf/bin"
+    $path
+)
+export PATH
+
+# ---------------------------------------------------------------------------
+#  History
+# ---------------------------------------------------------------------------
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+
+setopt HIST_IGNORE_ALL_DUPS   # 删除旧的重复条目
+setopt HIST_REDUCE_BLANKS     # 去除多余空格
+setopt SHARE_HISTORY          # 多终端共享历史
+setopt INC_APPEND_HISTORY     # 即时追加而非退出时写入
+setopt HIST_IGNORE_SPACE      # 以空格开头的命令不记录
+setopt EXTENDED_HISTORY        # 记录时间戳
+
+# ---------------------------------------------------------------------------
+#  Key bindings (emacs mode)
+# ---------------------------------------------------------------------------
+bindkey -e
+
+# 确保特殊键正常工作
+bindkey '^[[H'    beginning-of-line      # Home
+bindkey '^[[F'    end-of-line            # End
+bindkey '^[[3~'   delete-char            # Delete
+bindkey '^[[1;5C' forward-word           # Ctrl+Right
+bindkey '^[[1;5D' backward-word          # Ctrl+Left
+bindkey '^[[A'    history-search-backward # Up — 按前缀搜索历史
+bindkey '^[[B'    history-search-forward  # Down
+
+# ---------------------------------------------------------------------------
+#  Zinit — plugin manager
+# ---------------------------------------------------------------------------
+if [[ ! -f "$HOME/.local/share/zinit/zinit.git/zinit.zsh" ]]; then
+    print -P "%F{33}▓▒░ Installing zinit…%f"
+    command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
+    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git"
+fi
+
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+
+# Annexes (不使用 turbo，需要同步加载)
+zinit light-mode for \
+    zdharma-continuum/zinit-annex-as-monitor \
+    zdharma-continuum/zinit-annex-bin-gem-node \
+    zdharma-continuum/zinit-annex-patch-dl \
+    zdharma-continuum/zinit-annex-rust
+
+# Plugins — turbo mode (延迟加载，prompt 出现后异步加载)
+zinit wait lucid for \
+    atinit"zicompinit; zicdreplay" \
+        zdharma-continuum/fast-syntax-highlighting \
+    atload"_zsh_autosuggest_start" \
+        zsh-users/zsh-autosuggestions \
+    blockf atpull"zinit creinstall -q ." \
+        zsh-users/zsh-completions
+
+# fzf-tab — 用 fzf 增强 Tab 补全
+zinit wait lucid for \
+    Aloxaf/fzf-tab
+
+# ---------------------------------------------------------------------------
+#  Completion system
+# ---------------------------------------------------------------------------
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=2
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+
+# fzf-tab 样式
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color=always $realpath'
+zstyle ':fzf-tab:*' fzf-flags --height=40%
+
+# ---------------------------------------------------------------------------
+#  Aliases
+# ---------------------------------------------------------------------------
+# 列目录
+alias ls='ls --color=auto'
+alias ll='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
+
+# 导航
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# 搜索
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# 安全删除 (trash-cli)
+alias rm='trash-put'
+alias tl='trash-list'
+alias trestore='trash-restore'
+alias tempty='trash-empty'
+
+# 常用
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias ip='ip -c'
+
+# Git 快捷
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate -20'
+alias gd='git diff'
+
+# ---------------------------------------------------------------------------
+#  Proxy toggle (SSH -R 转发场景)
+# ---------------------------------------------------------------------------
+proxy_on() {
+    export http_proxy="http://127.0.0.1:7890"
+    export https_proxy="http://127.0.0.1:7890"
+    export all_proxy="socks5://127.0.0.1:7890"
+    export no_proxy="localhost,127.0.0.1,::1"
+    echo "🌐 Proxy ON  → 127.0.0.1:7890"
+}
+
+proxy_off() {
+    unset http_proxy https_proxy all_proxy no_proxy
+    echo "🚫 Proxy OFF"
+}
+
+# 默认开启代理（假设通过 SSH -R 转发）
+proxy_on > /dev/null
+
+# ---------------------------------------------------------------------------
+#  Misc options
+# ---------------------------------------------------------------------------
+setopt AUTO_CD            # 直接输入目录名即可 cd
+setopt AUTO_PUSHD         # cd 自动压栈
+setopt PUSHD_IGNORE_DUPS  # 不重复压栈
+setopt CORRECT            # 命令拼写纠错
+setopt INTERACTIVE_COMMENTS # 交互模式允许 # 注释
+
+# ---------------------------------------------------------------------------
+#  Starship prompt (放在最后)
+# ---------------------------------------------------------------------------
+eval "$(starship init zsh)"
