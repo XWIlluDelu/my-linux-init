@@ -63,6 +63,10 @@ curl -fsLS https://raw.githubusercontent.com/XWIlluDelu/zsh-config/main/bootstra
 
 完成后运行 `zsh` 或重新登录即可。
 
+> 注意：切换默认 shell（`chsh`）通常需要输入当前用户密码。
+> 脚本会在有 TTY 时弹出密码输入；如果在无 TTY 环境（如某些 CI）执行，请手动运行：
+> `chsh -s "$(which zsh)"`.
+
 ### 手动分步部署
 
 如果不想用一键脚本，也可以手动操作：
@@ -85,7 +89,10 @@ mkdir -p ~/.config/chezmoi
 echo 'umask = 0o022' > ~/.config/chezmoi/chezmoi.toml
 chezmoi apply
 
-# 6. 打开 zsh（首次会下载插件，约 30 秒）
+# 6. 设置默认 shell 为 zsh
+chsh -s "$(which zsh)"
+
+# 7. 打开 zsh（首次会下载插件，约 30 秒）
 zsh
 ```
 

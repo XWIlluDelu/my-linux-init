@@ -10,6 +10,16 @@ info()  { echo -e "${GREEN}[ok]${NC} $*"; }
 warn()  { echo -e "${YELLOW}[!!]${NC} $*"; }
 error() { echo -e "${RED}[xx]${NC} $*"; exit 1; }
 
+get_login_shell() {
+    local user="$1"
+    local login_shell
+    login_shell="$(getent passwd "$user" 2>/dev/null | cut -d: -f7 || true)"
+    if [[ -z "$login_shell" ]]; then
+        login_shell="$(awk -F: -v u="$user" '$1 == u { print $7 }' /etc/passwd 2>/dev/null || true)"
+    fi
+    printf '%s' "$login_shell"
+}
+
 command -v git  >/dev/null 2>&1 || error "git missing: sudo apt install git"
 command -v curl >/dev/null 2>&1 || error "curl missing: sudo apt install curl"
 
@@ -77,10 +87,43 @@ else
 fi
 
 # 6. default shell
-CURRENT_SHELL=$(basename "$SHELL")
-if [[ "$CURRENT_SHELL" != "zsh" ]]; then
-    warn "Switching default shell to zsh..."
-    chsh -s "$(which zsh)" 2>/dev/null || warn "chsh failed, run manually: chsh -s \$(which zsh)"
+ZSH_PATH="$(command -v zsh)"
+LOGIN_USER="${SUDO_USER:-${USER:-$(id -un)}}"
+CURRENT_LOGIN_SHELL="$(get_login_shell "$LOGIN_USER")"
+
+if [[ "$CURRENT_LOGIN_SHELL" != "$ZSH_PATH" ]]; then
+    warn "Switching default shell to zsh for $LOGIN_USER..."
+    if ! grep -qx "$ZSH_PATH" /etc/shells 2>/dev/null; then
+        warn "$ZSH_PATH is not in /etc/shells, chsh may fail"
+    fi
+
+    CHSH_OK=0
+    if [[ "$(id -u)" -eq 0 ]]; then
+        chsh -s "$ZSH_PATH" "$LOGIN_USER" >/dev/null 2>&1 && CHSH_OK=1
+    else
+        # In `curl ... | bash`, stdin is usually a pipe; use /dev/tty for password prompt.
+        if exec 3<>/dev/tty 2>/dev/null; then
+            warn "Password prompt may appear for chsh..."
+            chsh -s "$ZSH_PATH" "$LOGIN_USER" <&3 >&3 2>&3 && CHSH_OK=1
+            exec 3>&-
+        fi
+        if [[ -e /proc/self/fd/3 ]]; then
+            exec 3>&- || true
+        fi
+        if [[ "$CHSH_OK" -ne 1 ]] && sudo -n true 2>/dev/null; then
+            sudo chsh -s "$ZSH_PATH" "$LOGIN_USER" >/dev/null 2>&1 && CHSH_OK=1
+        fi
+    fi
+
+    NEW_LOGIN_SHELL="$(get_login_shell "$LOGIN_USER")"
+    if [[ "$NEW_LOGIN_SHELL" == "$ZSH_PATH" ]]; then
+        info "Default shell updated: $ZSH_PATH"
+    else
+        warn "Default shell change was not completed"
+        warn "Run manually: chsh -s \"$ZSH_PATH\" \"$LOGIN_USER\""
+    fi
+else
+    info "Default shell already zsh"
 fi
 
 # 7. preload zinit plugins
@@ -102,4 +145,3 @@ if [[ "${BOOTSTRAP_SELF_DELETE:-1}" = "1" ]]; then
         rm -f -- "$script_path" || true
     fi
 fi
-
