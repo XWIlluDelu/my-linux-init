@@ -1,6 +1,6 @@
 # =============================================================================
-#  Starship Prompt Configuration
-#  Docs: https://starship.rs/config/
+#  Starship Prompt Configuration — wangzixiong
+#  Managed by chezmoi · https://chezmoi.io
 # =============================================================================
 
 # 命令耗时 > 2 秒才显示

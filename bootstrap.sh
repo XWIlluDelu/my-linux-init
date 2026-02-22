@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Zsh 环境一键部署脚本
-#  用法: curl -fsLS https://raw.githubusercontent.com/XWIlluDelu/zsh-config/main/bootstrap.sh | bash
+#  Linux 环境一键部署脚本 (Zsh + Tmux)
+#  用法: curl -fsLS https://raw.githubusercontent.com/XWIlluDelu/my-linux-init/main/bootstrap.sh | bash
 # =============================================================================
 set -euo pipefail
 
@@ -44,7 +44,7 @@ info "chezmoi $(chezmoi --version | head -1)"
 
 # 2. chezmoi init + apply
 info "Pulling config..."
-chezmoi init --apply git@github.com:XWIlluDelu/zsh-config.git
+chezmoi init --apply git@github.com:XWIlluDelu/my-linux-init.git
 mkdir -p "$HOME/.config/chezmoi"
 if [[ ! -f "$HOME/.config/chezmoi/chezmoi.toml" ]]; then
     printf 'umask = 0o022\n' > "$HOME/.config/chezmoi/chezmoi.toml"
@@ -86,7 +86,19 @@ else
     info "trash-cli exists"
 fi
 
-# 6. default shell
+# 6. tmux
+if ! command -v tmux >/dev/null 2>&1; then
+    info "Installing tmux..."
+    if   command -v apt    >/dev/null 2>&1; then sudo apt install -y tmux
+    elif command -v dnf    >/dev/null 2>&1; then sudo dnf install -y tmux
+    elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --noconfirm tmux
+    else warn "Cannot auto-install tmux"; fi
+    info "tmux installed"
+else
+    info "tmux $(tmux -V)"
+fi
+
+# 7. default shell
 ZSH_PATH="$(command -v zsh)"
 LOGIN_USER="${SUDO_USER:-${USER:-$(id -un)}}"
 CURRENT_LOGIN_SHELL="$(get_login_shell "$LOGIN_USER")"
@@ -126,7 +138,7 @@ else
     info "Default shell already zsh"
 fi
 
-# 7. preload zinit plugins
+# 8. preload zinit plugins
 info "Preloading zinit plugins (~30s)..."
 zsh -i -c 'exit' 2>/dev/null || true
 info "Done"
@@ -134,6 +146,7 @@ info "Done"
 echo ""
 echo -e "${GREEN}======== Deploy complete! ========${NC}"
 echo "  Run zsh or re-login to start."
+echo "  tmux: tmux new -s main"
 echo "  Proxy: proxy_on / proxy_off (default ON @ 127.0.0.1:7890)"
 
 # ---------------------------------------------------------------------------
