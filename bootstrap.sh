@@ -5,6 +5,25 @@
 # =============================================================================
 set -euo pipefail
 
+# 设置默认代理
+export http_proxy="http://127.0.0.1:7897"
+export https_proxy="http://127.0.0.1:7897"
+export all_proxy="socks5://127.0.0.1:7897"
+
+# 解析命令行参数
+OVERWRITE=0
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --overwrite|-f)
+      OVERWRITE=1
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 info()  { echo -e "${GREEN}[ok]${NC} $*"; }
 warn()  { echo -e "${YELLOW}[!!]${NC} $*"; }
@@ -34,6 +53,14 @@ fi
 
 mkdir -p "$HOME/.local/bin"
 export PATH="$HOME/.local/bin:$PATH"
+
+if [[ "$OVERWRITE" -eq 1 ]]; then
+    info "Overwrite mode enabled. Cleaning up old configs and binaries..."
+    rm -rf "$HOME/.local/share/zinit"
+    rm -rf "$HOME/.local/share/chezmoi"
+    rm -rf "$HOME/.config/chezmoi"
+    rm -f "$HOME/.local/bin/starship" "$HOME/.local/bin/fzf" "$HOME/.local/bin/chezmoi"
+fi
 
 # 1. chezmoi
 if ! command -v chezmoi >/dev/null 2>&1; then
@@ -147,7 +174,7 @@ echo ""
 echo -e "${GREEN}======== Deploy complete! ========${NC}"
 echo "  Run zsh or re-login to start."
 echo "  tmux: tmux new -s main"
-echo "  Proxy: proxy_on / proxy_off (default ON @ 127.0.0.1:7890)"
+echo "  Proxy: proxy_on / proxy_off (default ON @ 127.0.0.1:7897)"
 
 # ---------------------------------------------------------------------------
 #  Self-destruct (可关闭：BOOTSTRAP_SELF_DELETE=0)
