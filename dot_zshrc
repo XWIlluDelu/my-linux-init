@@ -139,11 +139,11 @@ alias gd='git diff'
 #  Proxy toggle (SSH -R 转发场景)
 # ---------------------------------------------------------------------------
 proxy_on() {
-    export http_proxy="http://127.0.0.1:7890"
-    export https_proxy="http://127.0.0.1:7890"
-    export all_proxy="socks5://127.0.0.1:7890"
+    export http_proxy="http://127.0.0.1:7897"
+    export https_proxy="http://127.0.0.1:7897"
+    export all_proxy="socks5://127.0.0.1:7897"
     export no_proxy="localhost,127.0.0.1,::1"
-    echo "🌐 Proxy ON  → 127.0.0.1:7890"
+    echo "🌐 Proxy ON  → 127.0.0.1:7897"
 }
 
 proxy_off() {
