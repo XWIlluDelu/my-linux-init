@@ -79,7 +79,7 @@ zinit wait lucid for \
 #  Completion system
 # ---------------------------------------------------------------------------
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' completer _expand _complete
 zstyle ':completion:*' format 'Completing %d'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' menu select=2
@@ -160,7 +160,7 @@ proxy_on > /dev/null
 setopt AUTO_CD            # 直接输入目录名即可 cd
 setopt AUTO_PUSHD         # cd 自动压栈
 setopt PUSHD_IGNORE_DUPS  # 不重复压栈
-setopt CORRECT            # 命令拼写纠错
+# setopt CORRECT            # 命令拼写纠错 (已禁用)
 setopt INTERACTIVE_COMMENTS # 交互模式允许 # 注释
 
 # ---------------------------------------------------------------------------
