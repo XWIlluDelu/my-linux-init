@@ -71,7 +71,7 @@ info "chezmoi $(chezmoi --version | head -1)"
 
 # 2. chezmoi init + apply
 info "Pulling config..."
-chezmoi init --apply git@github.com:XWIlluDelu/my-linux-init.git
+chezmoi init --apply https://github.com/XWIlluDelu/my-linux-init.git
 mkdir -p "$HOME/.config/chezmoi"
 if [[ ! -f "$HOME/.config/chezmoi/chezmoi.toml" ]]; then
     printf 'umask = 0o022\n' > "$HOME/.config/chezmoi/chezmoi.toml"
