@@ -42,7 +42,7 @@ zinit wait"0" lucid for \
   zdharma-continuum/zinit-annex-patch-dl \
   zdharma-continuum/zinit-annex-rust
 
-zinit wait lucid for \
+zinit wait"0" lucid for \
   atinit"zicompinit; zicdreplay" \
     zdharma-continuum/fast-syntax-highlighting \
   atload"_zsh_autosuggest_start" \
@@ -50,7 +50,7 @@ zinit wait lucid for \
   blockf atpull"zinit creinstall -q ." \
     zsh-users/zsh-completions
 
-zinit wait lucid for \
+zinit wait"0" lucid for \
   Aloxaf/fzf-tab
 
 zstyle ':completion:*' auto-description 'specify: %d'

@@ -61,4 +61,3 @@ format = '([$symbol$environment]($style) )'
 
 [line_break]
 disabled = true
-
