@@ -130,7 +130,6 @@ alias proxy_test='curl -I https://google.com'
 proxy_on >/dev/null
 
 # Shell Setup
-stty -ixon
 setopt AUTO_CD
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
