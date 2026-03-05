@@ -44,10 +44,10 @@ command -v curl >/dev/null 2>&1 || error "curl missing: sudo apt install curl"
 
 if ! command -v zsh >/dev/null 2>&1; then
     warn "zsh not found, installing..."
-    if   command -v apt    >/dev/null 2>&1; then sudo apt update && sudo apt install -y zsh
-    elif command -v dnf    >/dev/null 2>&1; then sudo dnf install -y zsh
-    elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --noconfirm zsh
-    else error "Cannot auto-install zsh"; fi
+    if   command -v apt    >/dev/null 2>&1; then sudo apt update && sudo apt install -y zsh git wget curl build-essential eza bat fd-find ripgrep unzip vim tree htop jq
+    elif command -v dnf    >/dev/null 2>&1; then sudo dnf install -y zsh git wget curl gcc-c++ eza bat fd-find ripgrep unzip vim tree htop jq
+    elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --noconfirm zsh git wget curl base-devel eza bat fd ripgrep unzip vim tree htop jq
+    else error "Cannot auto-install zsh and base tools"; fi
     info "zsh installed"
 fi
 

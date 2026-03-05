@@ -1,36 +1,26 @@
-# =============================================================================
-#  Starship Prompt Configuration — wangzixiong
-#  Managed by chezmoi · https://chezmoi.io
-# =============================================================================
+add_newline = false
 
-# 命令耗时 > 2 秒才显示
 [cmd_duration]
-min_time = 2_000
+min_time = 2000
 format = "took [$duration]($style) "
 
-# 目录：截断到 3 层，不截断 Git 仓库内路径
 [directory]
 truncation_length = 3
 truncate_to_repo = false
 
-# Git 分支
 [git_branch]
 format = "[$symbol$branch(:$remote_branch)]($style) "
 
-# Git 状态：简洁显示
 [git_status]
 format = '([$all_status$ahead_behind]($style) )'
 
-# Python：显示版本和虚拟环境名
 [python]
 format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
 
-# 命令返回非零退出码时显示
 [status]
 disabled = false
 format = '[$symbol$status]($style) '
 
-# 这些模块不需要，关闭节省空间
 [aws]
 disabled = true
 
@@ -63,3 +53,12 @@ disabled = true
 
 [package]
 disabled = true
+
+[conda]
+disabled = false
+ignore_base = false
+format = '([$symbol$environment]($style) )'
+
+[line_break]
+disabled = true
+
