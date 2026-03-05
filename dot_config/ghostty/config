@@ -3,7 +3,7 @@
 # =============================================================================
 
 # Theme
-theme = Gruvbox Dark Hard
+theme = Gruvbox Dark
 
 # Font
 font-family = "Noto Sans Mono CJK SC"
