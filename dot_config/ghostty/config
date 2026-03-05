@@ -1,0 +1,26 @@
+# =============================================================================
+#  Ghostty Configuration — wangzixiong
+# =============================================================================
+
+# Theme
+theme = Catppuccin Frappe
+
+# Font
+font-family = "Noto Sans Mono CJK SC"
+font-size = 12
+
+# Window
+window-padding-x = 10
+window-padding-y = 10
+background-opacity = 1.0
+
+# Keybindings — Tmux-style (prefix: Ctrl+A)
+keybind = ctrl+a>shift+backslash=new_split:right
+keybind = ctrl+a>-=new_split:down
+keybind = ctrl+a>h=goto_split:left
+keybind = ctrl+a>j=goto_split:down
+keybind = ctrl+a>k=goto_split:up
+keybind = ctrl+a>l=goto_split:right
+
+# Theme
+theme = Gruvbox Dark
