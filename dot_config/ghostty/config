@@ -17,12 +17,11 @@ window-padding-balance = true
 background-opacity = 1.0
 
 # Keybindings Leader: Ctrl+A
-# 修复避坑指南：中文输入法下对于符号键（如 -）存在底层内存崩溃 Bug。
-# 现已全部更换为稳定的字母键/原生键映射方案。
+# (Note: Standard terminal prefix)
 
 # Split Management
-keybind = ctrl+a>v=new_split:right
-keybind = ctrl+a>s=new_split:down
+keybind = ctrl+a>shift+backslash=new_split:right
+keybind = ctrl+a>-=new_split:down
 keybind = ctrl+a>h=goto_split:left
 keybind = ctrl+a>j=goto_split:down
 keybind = ctrl+a>k=goto_split:up
