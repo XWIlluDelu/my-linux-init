@@ -9,6 +9,9 @@ theme = Gruvbox Dark
 font-family = "Noto Sans Mono CJK SC"
 font-size = 12
 
+# Native terminal identity (full Ghostty capabilities)
+term = xterm-ghostty
+
 # Window
 title = " "
 window-padding-x = 10

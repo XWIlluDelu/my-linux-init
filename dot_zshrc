@@ -18,6 +18,51 @@ setopt INC_APPEND_HISTORY
 setopt HIST_IGNORE_SPACE
 setopt EXTENDED_HISTORY
 
+# Ghostty SSH compatibility (no TERM downgrade):
+# Install Ghostty terminfo on remote hosts once, then keep TERM=xterm-ghostty everywhere.
+ghostty_sync_terminfo() {
+  local target="$1"
+  if [[ -z "$target" ]]; then
+    echo "Usage: ghostty_sync_terminfo user@host"
+    return 1
+  fi
+
+  if ! command -v infocmp >/dev/null 2>&1 || ! infocmp -x xterm-ghostty >/dev/null 2>&1; then
+    echo "❌ Local xterm-ghostty terminfo not found (or infocmp missing)."
+    echo "   Please ensure ncurses tools are installed locally."
+    return 1
+  fi
+
+  infocmp -x xterm-ghostty | command ssh "$target" '
+set -e
+mkdir -p "$HOME/.terminfo"
+if command -v tic >/dev/null 2>&1; then
+  tic -x -o "$HOME/.terminfo" /dev/stdin
+  echo "✅ xterm-ghostty terminfo installed at ~/.terminfo"
+else
+  echo "❌ Remote tic not found. Install ncurses-term/ncurses-bin first." >&2
+  exit 1
+fi
+'
+}
+
+ghostty_check_remote_terminfo() {
+  local target="$1"
+  if [[ -z "$target" ]]; then
+    echo "Usage: ghostty_check_remote_terminfo user@host"
+    return 1
+  fi
+
+  command ssh "$target" '
+if command -v infocmp >/dev/null 2>&1 && infocmp -x xterm-ghostty >/dev/null 2>&1; then
+  echo "✅ remote xterm-ghostty terminfo is available"
+else
+  echo "⚠️  remote xterm-ghostty terminfo is missing"
+  echo "    run: ghostty_sync_terminfo user@host"
+fi
+'
+}
+
 bindkey -e
 bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
