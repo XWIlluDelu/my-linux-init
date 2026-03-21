@@ -2,98 +2,93 @@
 
 自动化 Linux 装机与日常维护工具集。
 
-下面的命令示例默认仓库位于 `~/my-linux-setup`。
-所有脚本默认安全预览（`--check`），加 `--apply` 才会真正执行。
+默认仓库路径是 `~/my-linux-setup`。所有命令默认安全预览（`--check`），加 `--apply` 才会真正执行。
 
-不要把 `stage1` 和 `stage2` 连着直接运行。
-`stage1` 会修改 Btrfs 布局并自动重启；等系统重启完成后，再单独运行 `stage2`。
+不要把 `stage1` 和 `stage2` 连着直接运行。`stage1` 会修改 Btrfs 布局并自动重启；等系统重启完成后，再单独运行 `stage2`。
 
-## 主入口
+## 推荐入口
 
-### Stage 1：装机前（转换 Btrfs 布局）
+主入口统一是 `manage.sh`。
 
-作用：转换 Btrfs 布局，拆分 `@rootfs` / `@home`，然后自动重启。
+### 装机流程
 
-```bash
-bash ~/my-linux-setup/setup.sh stage1 --apply
-```
-
-### Stage 2：桌面装机
-
-作用：重启后继续完成桌面装机流程。
+Stage 1：转换 Btrfs 布局并重启
 
 ```bash
-bash ~/my-linux-setup/setup.sh stage2 --apply
+bash ~/my-linux-setup/manage.sh setup stage1 --apply
 ```
 
-### Stage 2 (server)：服务器装机
-
-作用：重启后继续完成 server profile，不安装桌面默认应用。
+Stage 2：重启后继续完成桌面装机
 
 ```bash
-bash ~/my-linux-setup/setup.sh stage2 --apply --profile server
+bash ~/my-linux-setup/manage.sh setup stage2 --apply
 ```
 
-如需完全非交互，使用：
+Stage 2（server）：只走 server profile
 
 ```bash
-bash ~/my-linux-setup/setup.sh stage2 --apply --profile server --yes
+bash ~/my-linux-setup/manage.sh setup stage2 --apply --profile server
 ```
 
-### Extra：只想重部署 shell 配置
+### 更新与维护
 
-作用：重新写入托管的 `.profile`、`.bashrc`、`.zshrc`、`.tmux.conf`、`starship.toml`。
+只重写托管 shell 配置文件：
 
 ```bash
-bash ~/my-linux-setup/tools/deploy-shell-config.sh --apply
+bash ~/my-linux-setup/manage.sh shell sync --apply --profile desktop
 ```
 
-## 主要的更新与维护项
-
-### 更新已安装的额外软件
-
-作用：更新已受管的软件，例如 WeChat、Ghostty、Miniforge、Maple Font、Flatpak 应用等。
+完整例行更新。这里会依次处理系统包更新、已受管应用与 shell 组件刷新，以及最后的 cleanup：
 
 ```bash
-bash ~/my-linux-setup/setup.sh update --apply
+bash ~/my-linux-setup/manage.sh update --apply
 ```
 
-### 交互式安装 NVIDIA
-
-作用：按交互选择安装驱动和 CUDA。
+只刷新已受管应用与 shell 组件。这里包含仓库路径下的 Edge、VSCode，也包含官方安装路径下的 WeChat、Ghostty、Miniforge 等：
 
 ```bash
-bash ~/my-linux-setup/setup.sh nvidia --apply
+bash ~/my-linux-setup/manage.sh update apps --apply
 ```
 
-如需先看探测结果，使用：
+只运行系统包升级这一步：
 
 ```bash
-bash ~/my-linux-setup/setup.sh nvidia --check
+bash ~/my-linux-setup/manage.sh update packages --apply
 ```
 
-### 例行系统维护
-
-作用：更新系统、清理缓存和无用包、清理 Flatpak、检查是否需要重启。
+修复 Debian/Ubuntu 包状态：
 
 ```bash
-bash ~/my-linux-setup/tools/system-maintain.sh --apply
+bash ~/my-linux-setup/manage.sh maintain repair --apply
 ```
 
-## 快照工具
-
-### 手动创建快照
-
-作用：交互式输入快照描述，并创建只读快照。
+APT 镜像探测或切换：
 
 ```bash
-bash ~/my-linux-setup/tools/create-snapshot.sh --apply
+bash ~/my-linux-setup/manage.sh maintain mirror --list
+bash ~/my-linux-setup/manage.sh maintain mirror --auto
 ```
 
-### 回滚到指定快照
+### 快照
 
-作用：交互式选择回滚目标快照，并准备回滚启动项。
+手动创建快照：
 
 ```bash
-bash ~/my-linux-setup/tools/rollback.sh --apply
+bash ~/my-linux-setup/manage.sh snapshot create --apply
 ```
+
+回滚到指定快照：
+
+```bash
+bash ~/my-linux-setup/manage.sh snapshot rollback --apply
+```
+
+### NVIDIA
+
+交互式安装 NVIDIA 驱动和 CUDA：
+
+```bash
+bash ~/my-linux-setup/manage.sh driver nvidia --apply
+```
+
+更多说明见 [drivers/nvidia/README.md](drivers/nvidia/README.md)。
